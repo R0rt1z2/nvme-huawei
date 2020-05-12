@@ -19,6 +19,7 @@
 
 import sys
 import struct
+import re
 
 VERSION = 1.0
 MAGIC = "486973692D4E562D506172746974696F6E"
@@ -46,6 +47,7 @@ VALUES = {
     "4652504B4559":"FRPKEY", # FRP Key (not correctly decoded).
     "53504B5F5041":"SPK_PA", # ?? (need to check).
     "4249444241434B":"BIDBACK", # ?? (need to check).
+    "5450434F4C4F52":"TPCOLOR", # Phone color (?)
 }
 
 def get_value_offset(data, value):
@@ -110,7 +112,11 @@ def parse_string(offset, gap, image, buf):
                 _VALUE_ = str(fp.read(STRING_LENGHT).decode('ascii', 'ignore'))
             except UnicodeDecodeError:
                 _VALUE_ = str(fp.read(STRING_LENGHT)) # is the value type of bytes?
-    return _VALUE_
+    
+    if bool(re.search('[a-z0-9]', _VALUE_, re.IGNORECASE)) is not True or _VALUE_ == "": # (check if value is empty)
+        return "NULL"
+    else:
+        return _VALUE_
 
 def show_help():
     print("""USAGE:
